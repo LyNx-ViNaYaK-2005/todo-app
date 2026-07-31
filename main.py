@@ -253,11 +253,20 @@ def get_all_users(
     db: Session = Depends(get_db), 
     current_user: DBUser = Depends(get_current_user)
 ):
-    # Paste the exact email you registered with on your app:
-    if current_user.email != "vinayak.oscar20052020@gmail.com":
+    # Check against username (or current_user.email if that's your exact DB field name)
+    if current_user.username != "Lynx":
         raise HTTPException(
             status_code=403, 
             detail="Access forbidden: You are not an admin!"
         )
     
-    return db.query(DBUser).all()
+    users = db.query(DBUser).all()
+    # Format manually to avoid SQLAlchemy serialization crashes
+    return [
+        {
+            "id": user.id, 
+            "username": user.username, 
+            "email": getattr(user, "email", None)
+        } 
+        for user in users
+    ]
