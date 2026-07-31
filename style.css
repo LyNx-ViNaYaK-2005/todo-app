@@ -1,0 +1,385 @@
+:root {
+    --paper: #FBF8F2;
+    --paper-line: #DAD4C6;
+    --ink: #1E2A45;
+    --ink-soft: #5B6579;
+    --sage: #4F7268;
+    --sage-deep: #3D5951;
+    --coral: #D66853;
+    --gold: #C9A227;
+    --card-bg: #FFFFFF;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    background:
+        repeating-linear-gradient(
+            var(--paper) 0px,
+            var(--paper) 27px,
+            #F1ECE0 28px
+        );
+    background-color: var(--paper);
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card-bg);
+    padding: 36px 34px;
+    border-radius: 6px;
+    border: 1px solid var(--paper-line);
+    box-shadow: 0 1px 2px rgba(30, 42, 69, 0.04), 0 12px 32px -12px rgba(30, 42, 69, 0.18);
+    position: relative;
+}
+
+.hidden { display: none !important; }
+
+h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.9rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+
+h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--ink);
+}
+
+.subhead {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    margin-bottom: 22px;
+    font-style: italic;
+}
+
+.subhead--tight { margin-bottom: 0; }
+
+/* Auth Tabs & Forms */
+.tab-buttons {
+    display: flex;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--paper-line);
+    gap: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    color: var(--ink-soft);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-btn:hover { color: var(--ink); }
+
+.tab-btn.active {
+    color: var(--sage-deep);
+    border-bottom: 2px solid var(--sage);
+}
+
+.form-group { margin-bottom: 16px; }
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    font-size: 0.96rem;
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(79, 114, 104, 0.15);
+}
+
+button.btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.05s ease;
+    margin-top: 4px;
+}
+
+button.btn:hover { background: var(--sage-deep); }
+button.btn:active { transform: scale(0.99); }
+
+.error-msg {
+    color: var(--coral);
+    font-size: 0.82rem;
+    margin-top: 12px;
+    text-align: center;
+    min-height: 1em;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed var(--paper-line);
+}
+
+.logout-btn {
+    background: none;
+    border: 1px solid var(--paper-line);
+    color: var(--ink-soft);
+    padding: 7px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    border-color: var(--coral);
+    color: var(--coral);
+}
+
+/* Task Inputs & List */
+.todo-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 26px;
+}
+
+.todo-input-group input { flex: 1; }
+
+.btn--add {
+    width: auto;
+    padding: 0 22px;
+    margin-top: 0;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    background: var(--paper);
+    border: 1px solid var(--paper-line);
+    border-radius: 5px;
+}
+
+.filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    white-space: nowrap;
+}
+
+.filter-bar input[type="date"] {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--card-bg);
+    color: var(--ink);
+}
+
+.filter-bar input[type="date"]:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(79, 114, 104, 0.15);
+}
+
+.clear-filter-btn {
+    background: none;
+    border: 1px solid var(--paper-line);
+    color: var(--ink-soft);
+    padding: 7px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.clear-filter-btn:hover {
+    border-color: var(--sage);
+    color: var(--sage-deep);
+}
+
+.empty-msg {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    padding: 18px 0;
+}
+
+.todo-list {
+    list-style: none;
+    position: relative;
+}
+
+/* signature: vertical timeline rule running through entries */
+.todo-list::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--paper-line);
+}
+
+.todo-item {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--paper-line);
+    border-radius: 5px;
+    padding: 13px 16px 13px 30px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.todo-item::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 19px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--ink-soft);
+}
+
+.todo-item.completed {
+    background: #F3F7F5;
+    border-color: #BFD8CE;
+}
+
+.todo-item.completed::before {
+    background: var(--sage);
+    border-color: var(--sage-deep);
+}
+
+.todo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.todo-title {
+    font-weight: 600;
+    font-size: 0.98rem;
+    word-break: break-word;
+}
+
+.todo-title.done {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+}
+
+.todo-timestamps {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.actions input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--sage);
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: var(--coral);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: background 0.15s ease;
+}
+
+.delete-btn:hover { background: rgba(214, 104, 83, 0.12); }
+
+/* accessibility: visible focus ring for keyboard nav */
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    .container { padding: 26px 20px; }
+    h2 { font-size: 1.6rem; }
+}
