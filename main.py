@@ -1,4 +1,6 @@
+import os
 import jwt
+from jwt import PyJWTError
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 
@@ -36,10 +38,19 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # ---------------------------------------------------------
-# 2. DATABASE SETUP
+# 2. DATABASE SETUP (POSTGRESQL WITH RENDER SUPPORT)
 # ---------------------------------------------------------
-SQLALCHEMY_DATABASE_URL = "sqlite:///./todos.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todos.db")
+
+# Fix Render's legacy postgres:// scheme prefix for SQLAlchemy 1.4+
+if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -51,7 +62,7 @@ def get_db():
         db.close()
 
 # ---------------------------------------------------------
-# 3. DATABASE MODELS (With Automatic Timestamps)
+# 3. DATABASE MODELS
 # ---------------------------------------------------------
 class DBUser(Base):
     __tablename__ = "users"
@@ -60,7 +71,6 @@ class DBUser(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     
-    # Relationship to user's todos
     todos = relationship("DBTodo", back_populates="owner")
 
 class DBTodo(Base):
@@ -71,11 +81,9 @@ class DBTodo(Base):
     description = Column(String, nullable=True)
     completed = Column(Boolean, default=False)
     
-    # Automatic Timestamps
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
     
-    # Foreign Key linking task to a specific user
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("DBUser", back_populates="todos")
 
@@ -113,12 +121,15 @@ class UserResponse(BaseModel):
     id: int
     username: str
 
+    class Config:
+        from_attributes = True
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 # ---------------------------------------------------------
-# 5. FASTAPI APPLICATION SETUP
+# 5. FASTAPI APPLICATION SETUP & CORS CONFIGURATION
 # ---------------------------------------------------------
 app = FastAPI(
     title="Timestamped To-Do API",
@@ -126,10 +137,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for local testing
+origins = [
+    "https://todomapper.netlify.app",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3000",
+    "*"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -141,7 +159,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=401, detail="Invalid token")
-    except jwt.PyJWTError:
+    except PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
         
     user = db.query(DBUser).filter(DBUser.username == username).first()
@@ -175,10 +193,23 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 # ---------------------------------------------------------
-# 7. TIMESTAMPED TO-DO ENDPOINTS (Private per user)
+# 7. ADMIN ENDPOINTS
 # ---------------------------------------------------------
+@app.get("/api/v1/admin/users", response_model=list[UserResponse], tags=["Admin"])
+def get_all_users(
+    db: Session = Depends(get_db), 
+    current_user: DBUser = Depends(get_current_user)
+):
+    if current_user.username != "Lynx":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Access forbidden: You are not an admin!"
+        )
+    return db.query(DBUser).all()
 
-# CREATE A NEW TASK (Auto-adds creation timestamp)
+# ---------------------------------------------------------
+# 8. TIMESTAMPED TO-DO ENDPOINTS
+# ---------------------------------------------------------
 @app.post("/api/v1/todos", response_model=TodoResponse, status_code=status.HTTP_201_CREATED, tags=["Todos"])
 def create_todo(
     todo_data: TodoCreate, 
@@ -195,7 +226,6 @@ def create_todo(
     db.refresh(new_todo)
     return new_todo
 
-# GET ALL TASKS FOR CURRENT USER ONLY
 @app.get("/api/v1/todos", response_model=list[TodoResponse], tags=["Todos"])
 def get_user_todos(
     db: Session = Depends(get_db), 
@@ -203,7 +233,6 @@ def get_user_todos(
 ):
     return db.query(DBTodo).filter(DBTodo.owner_id == current_user.id).all()
 
-# UPDATE A TASK / MARK COMPLETED (Auto-stamps completion timestamp)
 @app.patch("/api/v1/todos/{todo_id}", response_model=TodoResponse, tags=["Todos"])
 def update_todo(
     todo_id: int, 
@@ -215,7 +244,6 @@ def update_todo(
     if not db_todo:
         raise HTTPException(status_code=404, detail="Task not found or unauthorized")
 
-    # If status changes to completed=True, set completion timestamp automatically
     if todo_update.completed is True and not db_todo.completed:
         db_todo.completed = True
         db_todo.completed_at = datetime.now(timezone.utc)
@@ -232,7 +260,6 @@ def update_todo(
     db.refresh(db_todo)
     return db_todo
 
-# DELETE A TASK
 @app.delete("/api/v1/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Todos"])
 def delete_todo(
     todo_id: int, 
@@ -246,18 +273,3 @@ def delete_todo(
     db.delete(db_todo)
     db.commit()
     return
-
-
-@app.get("/api/v1/admin/users", response_model=list[UserResponse], tags=["Admin"])
-def get_all_users(
-    db: Session = Depends(get_db), 
-    current_user: DBUser = Depends(get_current_user)
-):
-    # Only allow access if the logged-in user is 'Lynx'
-    if current_user.username != "Lynx":
-        raise HTTPException(
-            status_code=403, 
-            detail="Access forbidden: You are not an admin!"
-        )
-    
-    return db.query(DBUser).all()
