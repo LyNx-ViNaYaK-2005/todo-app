@@ -246,3 +246,18 @@ def delete_todo(
     db.delete(db_todo)
     db.commit()
     return
+
+
+@app.get("/api/v1/admin/users")
+def get_all_users(
+    db: Session = Depends(get_db), 
+    current_user: DBUser = Depends(get_current_user)
+):
+    # Replace with your actual registered admin email!
+    if current_user.email != "your_admin_email@example.com":
+        raise HTTPException(
+            status_code=403, 
+            detail="Access forbidden: You are not an admin!"
+        )
+
+    return db.query(DBUser).all()
