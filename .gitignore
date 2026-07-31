@@ -1,0 +1,17 @@
+# Python / Virtual Environment
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+
+# OS / Editor files
+.DS_Store
+.vscode/
