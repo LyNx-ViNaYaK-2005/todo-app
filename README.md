@@ -1,5 +1,8 @@
 # 📝 Timestamped To-Do Mapper
-
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
 A full-stack task management application featuring user authentication, role-based access control (Admin route), and automatic task creation & completion timestamps.
 
 🚀 **Live Frontend:** [https://todomapper.netlify.app](https://todomapper.netlify.app)  
