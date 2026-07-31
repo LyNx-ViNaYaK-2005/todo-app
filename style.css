@@ -194,9 +194,13 @@ button.btn:active { transform: scale(0.99); }
     margin-bottom: 26px;
 }
 
-.todo-input-group input { flex: 1; }
+.todo-input-group input {
+    flex: 1 1 0%;
+    width: auto;
+}
 
 .btn--add {
+    flex: 0 0 auto;
     width: auto;
     padding: 0 22px;
     margin-top: 0;

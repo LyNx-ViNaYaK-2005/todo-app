@@ -1,4 +1,4 @@
-const API_BASE = "https://todo-app-vuzd.onrender.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 let currentMode = "login";
 let token = localStorage.getItem("access_token");
 
