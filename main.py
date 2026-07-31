@@ -248,25 +248,16 @@ def delete_todo(
     return
 
 
-@app.get("/api/v1/admin/users")
+@app.get("/api/v1/admin/users", response_model=list[UserResponse], tags=["Admin"])
 def get_all_users(
     db: Session = Depends(get_db), 
     current_user: DBUser = Depends(get_current_user)
 ):
-    # Check against username (or current_user.email if that's your exact DB field name)
+    # Only allow access if the logged-in user is 'Lynx'
     if current_user.username != "Lynx":
         raise HTTPException(
             status_code=403, 
             detail="Access forbidden: You are not an admin!"
         )
     
-    users = db.query(DBUser).all()
-    # Format manually to avoid SQLAlchemy serialization crashes
-    return [
-        {
-            "id": user.id, 
-            "username": user.username, 
-            "email": getattr(user, "email", None)
-        } 
-        for user in users
-    ]
+    return db.query(DBUser).all()
